@@ -19,7 +19,7 @@
 |   | Topics/Weekly Activities  | [Due Dates](https://q.utoronto.ca/courses/298698/assignments) <br> by 11:59 pm Wednesdays unless noted |
 |---|---|---|
 |  **Week 1** <br> January 8 [lecture](https://jsc370.github.io/JSC370-2024/slides/JSC370-slides-01.html) <br> January 10 [lab](https://jsc370.github.io/JSC370-2024/labs/lab01/lab01-hello-R.html)  |  Introduction to Data Science tools: R, markdown |  **Lab 1** |
-|  **Week 2** <br> January 15 [lecture]()<br> January 17 [lab]() |   <br> Version Control & Reproducible Research, Git |  **Lab 2**|
+|  **Week 2** <br> January 15 [lecture](https://jsc370.github.io/JSC370-2024/slides/JSC370-slides-02.html)<br> January 17 [lab]() |   <br> Version Control & Reproducible Research, Git |  **Lab 2**|
 |  **Week 3** <br> January 22 [lecture]() <br> January 24 [lab]() ([sample solution]())  |  Exploratory Data Analysis <br/> [Assignment 1]()  |**Lab 3**|
 |  **Week 4** <br> January 29 [lecture](), <br> January 31 [lab]() ([sample solution]()) |  Data visualization |   **[HW1](), Lab 4**   |
 |  **Week 5** <br> February 5 [lecture]() <br> February 7 [lab]() ([sample solution]()) | Data cleaning and wrangling <br> ML 1 [advanced regression]() <br> [advanced regression solution]()| **Lab 5** |

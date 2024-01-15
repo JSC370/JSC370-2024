@@ -26,12 +26,12 @@
 |  **Week 6** <br> February 12 [lecture]() <br> February 14 [lab]() ([sample solution]()) | Regular Expressions, Big Data, Data scraping, using APIs  |  **[HW2](), Lab 6**  |
 |  **Week 7** <br> February 21 | Reading Week  |   |
 |  **Week 8** <br> February 26 [lecture]() <br> February 28 [lab]() ([sample solution]()) | Text mining  |  **Lab 8** |
-|  **Week 9** <br> March 5 [lecture](), [Guest Speaker]() <br> March 7 [lab]() ([sample solution]()) |  High performance computing, cloud computing  | **[Midterm](), Lab 9**   |
-|  **Week 10** <br> March 12 [lecture]() <br> March 14 [lab]() ([sample solution](), [lab-b (optional)]() ([sample solution]()) |  ML 2 (trees, rf, xgboost)   | **[HW3]() Lab 10** |
-|  **Week 11** <br> March 19 [lecture]() <br> March 21 [lab11]() ([sample solution]())| <br> Interactive visualization and effective data communication I  |  **Lab 11**  |
-|  **Week 12** <br> March 26 [lecture]() <br> March 28 [lab12]() | Interactive visualization and effective data communication II  | **[HW4](), Lab 12**  |
-|  **Week 13** <br> April 2 lecture <br> April 4 (lab) |  Final Porject Workshop |  **[HW5]()** |
-|  **Week 15** <br> April 27 (final exam period) | |  **[Final Project]()** |
+|  **Week 9** <br> March 4 [lecture](), [Guest Speaker]() <br> March 6 [lab]() ([sample solution]()) |  High performance computing, cloud computing  | **[Midterm](), Lab 9**   |
+|  **Week 10** <br> March 11 [lecture]() <br> March 13 [lab]() ([sample solution](), [lab-b (optional)]() ([sample solution]()) |  ML 2 (trees, rf, xgboost)   | **[HW3]() Lab 10** |
+|  **Week 11** <br> March 18 [lecture]() <br> March 20 [lab11]() ([sample solution]())| <br> Interactive visualization and effective data communication I  |  **Lab 11**  |
+|  **Week 12** <br> March 25 [lecture]() <br> March 27 [lab12]() | Interactive visualization and effective data communication II  | **[HW4](), Lab 12**  |
+|  **Week 13** <br> April 1 lecture <br> April 3 (lab) |  Final Porject Workshop |  **[HW5]()** |
+|  **Week 15** <br> April 26 (final exam period) | |  **[Final Project]()** |
 
 ### Grading Breakdown
 

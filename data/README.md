@@ -1,7 +1,3 @@
-
-Information for Datasets in JSC370
-
-
 ---
 name: [Metereological data from the Integrated Surface Dataset (ISD)]
 short-desc: [Sample of the Integrated Surface Data]
@@ -11,6 +7,7 @@ data dictionary url: [https://www.ncei.noaa.gov/data/global-hourly/doc/isd-forma
 keywords: [spatial data]
 format: [csv]
 ---
+Information about meteorological data.
 
 Directly from the NOAA's Website
 

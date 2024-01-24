@@ -1,0 +1,169 @@
+---
+title: "Lab 03 - Exploratory Data Analysis"
+output:
+  tufte::tufte_html:
+    css: style.css
+link-citations: yes
+---
+
+```{r setup, message=FALSE, echo=FALSE, warning=FALSE}
+#install.packages(c("data.table","leaflet"))
+library(data.table)
+library(leaflet)
+library(tidyverse)
+```
+
+# Learning Goals
+
+- Read in and get familiar with the meteorology dataset  
+- Step through the EDA "checklist" presented in the class slides
+- Practice making exploratory graphs
+
+# Lab Description
+
+We will work with the meteorological data presented in lecture, but updated to June 2023. Recall the dataset consists of weather station readings in the continental US. It is a large dataset so please use data.table throughout!
+
+**The objective of the lab is to find the weather stations with the highest and lowest elevations and look at patterns in their time series of temperature and wind.speed**
+
+# Steps
+
+### 1. Read in the data
+
+First download and then read in with data.table:fread()
+
+```{r checking-file, include=FALSE}
+fn <- "https://github.com/JSC370/JSC370-2024/blob/main/data/met_all_2023.gz"
+if (!file.exists("met_all_2023.gz"))
+  download.file(fn, destfile = "met_all_2023.gz")
+met <- data.table::fread("met_all_2023.gz")
+```
+
+
+```{r, echo=TRUE, message=FALSE, eval=FALSE}
+download.file(
+  "https://github.com/JSC370/JSC370-2024/blob/main/data/met_all_2023.gz",
+  destfile = "met_all_2023.gz",
+  method   = "curl",
+  timeout  = 60
+  )
+
+met <- data.table::fread("met_all_2023.gz")
+```
+
+### 2. Check the dimensions, headers, footers. How many columns, rows are there?
+
+```{r}
+dim(met)
+head(met)
+tail(met)
+```
+
+
+### 3. Take a look at the variables.
+
+```{r}
+str(met)
+```
+
+
+### 4. Take a closer look at the key variables. 
+
+```{r}
+table(met$year)
+table(met$day)
+table(met$hour)
+summary(met$temp)
+summary(met$elev)
+summary(met$wind.sp)
+summary(met$lat)
+summary(met$lon)
+```
+
+It looks like some of the variables are not scaled properly. We should take a deeper look at the data dictionary to confirm. 
+
+After checking the data we should make the appropriate modifications. Specifically: divide lat and lon by 1000, divide wind.sp, temp, dew.point, atm.press by 10, and let's calculate relative humidity with the following: `100*((112-0.1*temp+dew.point)/(112+0.9*temp))^8`
+
+```{r}
+# <place your code here>
+```
+
+After scaling, check for implausible values of the key variables: temperature and humidity. Recall relative humidity should between 0% and 100%, and that these data are for June 2023.
+
+Also check rates of missing values in the key variables.
+
+```{r}
+# <place your code here>
+```
+
+- _Summarize here_
+
+
+
+### 5. Check the data against an external data source.
+
+We should check the suspicious values (where is it located?) and validate that the range of elevations make sense. Google is your friend here.
+
+Fix any problems that arise in your checks.
+
+```{r}
+# <place your code here>
+```
+
+- _Summarize anything that was removed_
+
+### 6. Find the weather stations with the highest and lowest elevations
+
+Using data.table you can order the data and print the head and tail.
+
+After finding these sites make a `leaflet` map showing where these two sites are.
+
+```{r}
+library(leaflet)
+# <place your code here>
+```
+
+
+
+### 7. Exploratory graphs
+
+We should look at the distributions of all of the key variables (elevation, temp, wind speed) to make sure there are no remaining issues with the data.
+
+```{r }
+# <place your code here>
+```
+
+One thing we should consider for later analyses is to log transform wind speed and elevation as the are very skewed.
+
+
+```{r}
+# <place your code here>
+```
+
+- _Summarize_
+
+Look at the time series of temperature and wind speed at this location. For this we will need to create a date-time variable for the x-axis.
+
+```{r message=FALSE}
+library(lubridate)
+# <place your code here>
+```
+
+With the date-time variable we can plot the time series of temperature and wind speed. For the sake of computing time, do this for the weather station with the highest elevation.
+
+```{r}
+# <place your code here>
+```
+
+Summarize any trends that you see in these time series plots.
+
+### 7. Look at basic relationships between variables
+
+Remember to keep the initial question in mind. We want to pick out the weather station with maximum and minimum elevation and examine their wind speed and temperature.
+
+Some ideas: 
+1. calculate the correlation between temperature and wind speed; and 
+2. make a scatterplot of temperature and wind speed and add the linear regression line (also look at `lm()` results)
+
+```{r}
+# <place your code here>
+```

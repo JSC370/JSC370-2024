@@ -32,7 +32,7 @@ We will work with the meteorological data presented in lecture, but updated to J
 First download and then read in with data.table:fread()
 
 ```{r checking-file, include=FALSE}
-fn <- "https://github.com/JSC370/JSC370-2024/blob/main/data/met_all_2023.gz"
+fn <- "https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/met_all_2023.gz"
 if (!file.exists("met_all_2023.gz"))
   download.file(fn, destfile = "met_all_2023.gz")
 met <- data.table::fread("met_all_2023.gz")
@@ -41,7 +41,7 @@ met <- data.table::fread("met_all_2023.gz")
 
 ```{r, echo=TRUE, message=FALSE, eval=FALSE}
 download.file(
-  "https://github.com/JSC370/JSC370-2024/blob/main/data/met_all_2023.gz",
+  "https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/met_all_2023.gz",
   destfile = "met_all_2023.gz",
   method   = "curl",
   timeout  = 60

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Data Visualization</title>
+    <meta charset="utf-8" />
+    <meta name="date" content="2024-01-29" />
+    <script src="libs/header-attrs-2.23/header-attrs.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+.title[
+# Data Visualization
+]
+.subtitle[
+## JSC 370: Data Science II
+]
+.date[
+### January 29, 2024
+]
+
+---
+
+
+
+## Background
+
+&lt;img src="img/ggplot2.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+This lecture provides an introduction to `ggplot2`, an R package that provides vastly better graphics options than R's default plots, histograms, etc.
+
+---
+
+
+## Background
+
+`ggplot2` is part of the Tidyverse. The tidyverse is..."an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures." (https://www.tidyverse.org/)
+
+Core tidyverse includes `dplyr`, which provides the main grammar for data manipulation.
+
+It also includes `stringr` which we will use in a few weeks and `lubridate` that we saw in lab that helps with dates and times.
+
+
+
+```r
+library(tidyverse)
+library(nycflights13)
+library(kableExtra)
+```
+---
+
+
+
+## Layers, dplyr and pipes
+
+* We should take a step back and discuss `tidyverse` a bit more.
+--
+
+* `ggplot2` behaves very similarly to `dplyr`. They are part of the tidyverse.
+--
+
+* The first argument in `dplyr` is always a data frame (it can be a data.table).
+--
+
+* Subsequent arguments can also be thought of as layers describe actions to be taken on the data (verbs).
+--
+
+* The output is always a new data frame.
+--
+
+* Layers are connected by a pipe, which until R 4.1.0 was denoted `%&gt;%`.
+--
+
+* The new pipe is `|&gt;`, which works similarly but has some differences likely only noticeable by expert users.
+
+
+
+---
+
+
+## The Pipe `%&gt;%` and now `|&gt;`
+
+* The pipe passes the object on its left hand side to the first argument of the function on the right hand side.
+--
+
+* We can kind of think of it as saying 'then'.
+
+---
+
+## Flights data 
+
+To illustrate many of today's examples we will look at the `flights` data from the `nycflights13` library. They are all flights that departed from NYC airports (JFK, LGA, EWR) in 2013. 
+
+
+```r
+names(flights)
+```
+
+```
+##  [1] "year"           "month"          "day"            "dep_time"      
+##  [5] "sched_dep_time" "dep_delay"      "arr_time"       "sched_arr_time"
+##  [9] "arr_delay"      "carrier"        "flight"         "tailnum"       
+## [13] "origin"         "dest"           "air_time"       "distance"      
+## [17] "hour"           "minute"         "time_hour"
+```
+
+```r
+dim(flights)
+```
+
+```
+## [1] 336776     19
+```
+---
+
+## Flights data 
+
+&lt;img src="img/flights.png" width="80%" style="display: block; margin: auto;" /&gt;
+---
+
+
+
+## The pipe `%&gt;%` 
+
+* An example using pipes: subset the flights data to LAX, and take the mean arrival delay times by year, month, day.
+--
+
+* We need to start with the data, `filter` to the desired destination (LAX), `group_by` to prepare the groups that we want to summarize over, then `summarize` to take the mean (or whatever function we want) of the variable we are interested in.
+
+---
+
+
+```r
+nycflights13::flights %&gt;%
+  filter(dest == "LAX") %&gt;%
+  group_by(year, month, day) %&gt;%
+  summarize(
+    arr_delay = mean(arr_delay, na.rm = TRUE)
+  )
+```
+
+---
+
+
+
+## The new pipe `|&gt;`
+
+Let's do the same thing with the new pipe:
+
+
+```r
+nycflights13::flights |&gt;
+  filter(dest == "LAX") |&gt;
+  group_by(year, month, day) |&gt;
+  summarize(
+    arr_delay = mean(arr_delay, na.rm = TRUE)
+  )
+```
+
+---
+
+## A few coding style tips
+
+* Variable names (those created by `&lt;-` and those created by `mutate()` and `summarize()`) should use only lowercase letters, numbers, and _ 
+* Use _ to separate words within a name
+* `%&gt;%` or `|&gt;` should always have a space before it, and should usually be followed by a new line
+* After the first step, each line should be indented by two spaces.
+* Note on the previous slides that had long lines, the arguments to a function may not all fit on one line, put each argument on its own line and indent.
+
+
+```r
+short_flights &lt;- flights |&gt;
+  filter(air_time &lt; 60)
+```
+
+
+---
+
+## Flights data in more detail
+
+The `nycflights13` library also provides hourly airport weather data for the three NYC airports (the origin). Let's join the flights data with the `weather` data so we can look at more interesting relationships in our visualizations.
+
+
+```r
+names(weather)
+```
+
+```
+##  [1] "origin"     "year"       "month"      "day"        "hour"      
+##  [6] "temp"       "dewp"       "humid"      "wind_dir"   "wind_speed"
+## [11] "wind_gust"  "precip"     "pressure"   "visib"      "time_hour"
+```
+
+```r
+dim(weather)
+```
+
+```
+## [1] 26115    15
+```
+
+---
+
+## Flights data in more detail
+
+Looks like we can join these datasets on year, month, day, hour and origin (which is the origin airport). We can examine the relationship between flight delays and weather at the origin airports (JFK, LGA, EWR).
+
+A `left_join` will keep all of the observations in x (here, flights) and merge with the observations in y (weather at origin). Because there are many flights originating at the 3 NYC airports on a given year, month, day, hour we want to keep the resolution of the x dataset.
+
+
+```r
+flights_weather &lt;- 
+  left_join(
+    flights, weather, by = c("year", "month", "day", "hour", "origin")
+    )
+```
+
+---
+
+
+## Flights data in more detail 
+
+
+
+```r
+head(flights_weather)
+```
+
+```
+## # A tibble: 6 × 29
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013     1     1      517            515         2      830            819
+## 2  2013     1     1      533            529         4      850            830
+## 3  2013     1     1      542            540         2      923            850
+## 4  2013     1     1      544            545        -1     1004           1022
+## 5  2013     1     1      554            600        -6      812            837
+## 6  2013     1     1      554            558        -4      740            728
+## # ℹ 21 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour.x &lt;dttm&gt;, temp &lt;dbl&gt;, dewp &lt;dbl&gt;,
+## #   humid &lt;dbl&gt;, wind_dir &lt;dbl&gt;, wind_speed &lt;dbl&gt;, wind_gust &lt;dbl&gt;,
+## #   precip &lt;dbl&gt;, pressure &lt;dbl&gt;, visib &lt;dbl&gt;, time_hour.y &lt;dttm&gt;
+```
+
+---
+
+## Daily flights data
+
+Let's make a more manageable sized dataset and summarize the data by month, day, and origin airport
+
+
+```r
+flights_weather_day &lt;- 
+  flights_weather |&gt;
+  group_by(year, month, day, origin) |&gt;
+  summarize_at(
+    vars(dep_delay, arr_delay, temp, dewp, humid, wind_dir, 
+             wind_speed, wind_gust, precip, pressure, visib), mean, na.rm=TRUE
+    
+  )
+```
+
+---
+
+
+## Visualizations 
+
+`ggplot2` is designed on the principle of adding layers.
+
+&lt;img src="img/layers.png" width="40%" style="display: block; margin: auto;" /&gt;
+---
+
+## Layers in ggplot2
+
+* With `ggplot2` a plot is initiated with the function `ggplot()`
+* The first argument of `ggplot()` is the dataset to use in the graph
+* We add aesthetics is always paired with `aes()`
+* The `aes()` mapping takes the x and y axes of the plot
+* Layers are added to `ggplot()` with `+`
+* Layers include `geom` functions such as point, lines, etc.
+
+
+
+```r
+ggplot(data = data, mapping = aes(mappings)) +
+  geom_function()
+```
+
+---
+
+
+### Basic scatterplot
+
+The first argument of `ggplot()` is the dataset to use, then the aesthetics. With the `+` you add one or more layers.
+
+
+```r
+ggplot(data = flights_weather_day, mapping = aes(x = arr_delay, y = dep_delay)) +
+  geom_point()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-14-1.png" width="20%" style="display: block; margin: auto;" /&gt;
+As expected, we see that if a flight has a late departure, it has a late arrival. 
+
+
+---
+
+
+### Another basic scatterplot
+
+We can drop `data =` and `mapping =`. Now let's see if there is a relationship between departure delays and pressure (low pressure means clouds and precipitation, high pressure means better weather).
+
+
+```r
+ggplot(flights_weather_day, aes(x = pressure, y = dep_delay)) +
+  geom_point()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-15-1.png" width="20%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+### Adding to a basic scatterplot
+
+- `geom_point()` adds a layer of points to your plot, creating a scatterplot. 
+- `ggplot2` comes with many geom functions that each add a different type of layer to a plot. 
+- Each `geom` function in `ggplot2` takes a mapping argument. 
+- This defines how variables in your dataset are mapped to visual properties. 
+- The mapping argument is always paired with `aes()`, and the x and y arguments of `aes()` specify which variables to map to the x and y axes. 
+- One common problem when creating `ggplot2` graphics is to put the `+` in the wrong place: it has to come at the end of the line, not the start.
+
+---
+
+### Coloring by a variable - using aesthetics
+
+You can convey information about your data by mapping the aesthetics in your plot to the variables in your dataset. For example, you can map the colors of your points to the class variable to reveal groupings. `ggplot` chooses colors, and adds a legend, automatically.
+
+
+```r
+ggplot(flights_weather_day, aes(x = arr_delay, y = dep_delay, color = origin)) +
+  geom_point()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-16-1.png" width="20%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+
+### Coloring by a variable - using aesthetics
+
+Note when there are a lot of classes or groups, the coloring is not distinguished well
+
+
+```r
+ggplot(flights_weather, aes(x = arr_delay, y = dep_delay, color = dest)) +
+  geom_point()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-17-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+### Determining point type using a variable 
+
+By default ggplot uses up to 6 shapes. If there are more, some of your data is not plotted!! (At least it warns you.)
+
+
+```r
+ggplot(flights_weather, aes(x = arr_delay, y = dep_delay, shape = dest)) +
+  geom_point()
+```
+
+```
+## Warning: The shape palette can deal with a maximum of 6 discrete values because
+## more than 6 becomes difficult to discriminate; you have 105. Consider
+## specifying shapes manually if you must have them.
+```
+
+```
+## Warning: Removed 316584 rows containing missing values (`geom_point()`).
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-18-1.png" width="20%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+### Determining point type using a variable 
+
+
+```r
+ggplot(flights_weather_day, aes(x = arr_delay, y = dep_delay, shape = origin)) +
+  geom_point()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-19-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+### Controlling point transparency using the "alpha" aesthetic
+
+```r
+ggplot(flights_weather_day, aes(x = arr_delay, y = dep_delay, alpha = origin)) +
+  geom_point()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-20-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+### Manual control of aesthetics
+
+To control aesthetics manually, we do it in `geom_point`, so set the aesthetic by name outside `aes()` 
+
+
+```r
+ggplot(flights_weather_day, aes(x = arr_delay, y = dep_delay)) +
+  geom_point(color = "blue")
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-21-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+  
+
+---
+
+### Summary of aesthetics
+
+The various aesthetics...
+
+&lt;table class=" lightable-minimal" style='font-family: "Trebuchet MS", verdana, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;'&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Code &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Description &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; x &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; position on x-axis &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; x &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; position on y-axis &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; shape &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; shape &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; color &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; color of element borders &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; fill &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; color inside  elements &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; size &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; size &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; transparency &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; linetype &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; type of line &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+
+### Facets 1
+
+Facets are particularly useful for categorical variables...
+
+
+```r
+ggplot(flights_weather_day, aes(x = wind_speed, y = dep_delay)) +
+  geom_point() +
+  facet_wrap(~origin, nrow = 1)
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-22-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+  
+---
+
+### Facets 2
+Or you can facet on two variables...
+
+```r
+ggplot(flights_weather_day, aes(x = arr_delay, y = dep_delay)) +
+  geom_point() +
+  facet_grid(month ~ origin)
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-23-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Geometric Objects 1
+
+Geometric objects are used to control the type of plot you draw. Let's try plotting a smoothed line fitted to the data (and note how we do side-by-side plots).
+
+
+```r
+library(cowplot)
+scatterplot &lt;- ggplot(flights_weather_day, aes(x = pressure, y = dep_delay)) +
+  geom_point()
+lineplot &lt;- ggplot(flights_weather_day, aes(x = pressure, y = dep_delay)) +
+  geom_smooth()
+plot_grid(scatterplot, lineplot, labels = "AUTO")
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-24-1.png" width="20%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Geometric Objects 2
+
+Note that not every aesthetic works with every geom function. But now there are some new ones we can use: `linetype`:
+
+
+```r
+ggplot(flights_weather_day, aes(x = pressure, y = dep_delay, linetype = origin)) +
+  geom_smooth()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-25-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+## Geoms - Reference
+
+`ggplot2` provides over 40 geoms, and extension packages provide even more (see https://ggplot2.tidyverse.org/reference/ for a sampling). 
+
+The best way to get a comprehensive overview is the `ggplot2 cheatsheet`, which you can find at https://posit.co/resources/cheatsheets/
+
+&lt;img src="img/geoms.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Multiple Geoms 1
+To display multiple geoms in the same plot, add multiple `geom` functions to `ggplot()`:
+
+
+```r
+ggplot(flights_weather_day, aes(x = pressure, y = dep_delay)) +
+  geom_point() +
+  geom_smooth()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-27-1.png" width="28%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+## Multiple Geoms 2
+
+If you place mappings in a `geom` function, `ggplot2` will use these mappings to extend or overwrite the global mappings for that layer only. This makes it possible to display different aesthetics in different layers.
+
+
+```r
+ggplot(flights_weather_day, aes(x = pressure, y = dep_delay)) +
+  geom_point(aes(color = origin)) +
+  geom_smooth()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-28-1.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Multiple Geoms 3
+
+You can use the same idea to specify different data for each layer. Here, our smooth line displays just a subset of the dataset, the flights departing from JFK. The local data argument in `geom_smooth()` overrides the global data argument in `ggplot()` for that layer only.
+
+
+```r
+ggplot(flights_weather_day, aes(x = pressure, y = dep_delay)) +
+  geom_point(mapping = aes(color = origin)) +
+  geom_smooth(data = filter(flights_weather_day, origin == "JFK"), se = FALSE)
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-29-1.png" width="20%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Statistical Transformations - e.g. Bar charts
+
+Let's make a bar chart of the number of flights at each origin airport in 2013. The algorithm uses a built-in statistical transformation, called a "stat", to calculate the counts.
+
+
+```r
+ggplot(flights_weather, aes(x = origin)) +
+  geom_bar()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-30-1.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Bar charts 2
+
+You can override the statistic a `geom` uses to construct its plot. e.g., if we want to plot proportions, rather than counts:
+
+
+```r
+ggplot(flights_weather, aes(x = origin, y = stat(prop), group = 1)) +
+  geom_bar()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-31-1.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Coloring barcharts
+
+You can color a bar chart using either the `color` aesthetic (only does the outline), or, more usefully, `fill`:
+
+
+```r
+ggplot(flights_weather, aes(x = origin, fill= origin)) +
+  geom_bar()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-32-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+---
+
+### Coloring barcharts
+
+More interestingly, you can fill by another variable. Let's first subset our data to look at the destination airports with a lot of flights (more than 10,000 flights)
+
+
+```r
+flights_weather_ss &lt;- flights_weather |&gt;
+  group_by(dest) %&gt;%
+  filter(n() &gt; 10000)
+```
+---
+
+## Coloring barcharts
+
+
+```r
+ggplot(flights_weather_ss, aes(x = origin, fill= dest)) +
+  geom_bar()
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-34-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+---
+
+
+### Coloring barcharts
+The `position = "dodge"` places overlapping objects directly beside one another. This makes it easier to compare individual values.
+
+
+```r
+ggplot(flights_weather_ss, aes(x = origin, fill= dest)) +
+  geom_bar(position="dodge")
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-35-1.png" width="30%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+### Statistical transformations - another example
+
+You might want to draw greater attention to the statistical transformation in your code. For example, you might use `stat_summary()`, which summarizes the y values for each unique x value, to draw attention to the summary that you're computing:
+
+
+```r
+ggplot(flights_weather_ss, aes(x = dest, y = dep_delay)) +
+  stat_summary(fun = median, 
+               fun.min = function(z) { quantile(z,0.25) },
+               fun.max = function(z) { quantile(z,0.75) })
+```
+
+
+---
+
+### Statistical transformations - another example
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-37-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Coordinate systems
+
+Coordinate systems are one of the more complicated corners of ggplot.
+To start with something simple, here's how to flip axes:
+
+
+```r
+unflipped &lt;- ggplot(flights_weather_ss, aes(x = origin, y = dep_delay)) +
+  geom_boxplot()
+flipped &lt;- ggplot(flights_weather_ss, mapping = aes(x = origin, y = dep_delay)) +
+  geom_boxplot() +
+  coord_flip()
+plot_grid(unflipped, flipped, labels = "AUTO")
+```
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-38-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+---
+
+
+### A Great reference
+
+A great (comprehensive) reference for everything you can do with `ggplot2` is the R Graphics Cookbook:
+
+https://r-graphics.org/
+
+---
+
+
+
+### Finally, file under "useless but cool"
+
+ggpattern - is a library for adding pattern fills to histograms. e.g.,
+
+&lt;img src="JSC370-slides-04_files/figure-html/unnamed-chunk-39-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

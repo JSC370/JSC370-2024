@@ -1,0 +1,85 @@
+---
+title: "Advanced Regression"
+author: "Meredith Franklin"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(mgcv)
+library(ggplot2)
+library(tidyverse)
+```
+
+## Advanced Regression
+
+- A linear model tries to fit the best straight line that passes through the data, so it doesn't work well for all datasets.
+
+- In contrast, a GAM can capture complex relationships by fitting a non-linear smooth function through the data, while controlling how wiggly the smooth can get
+
+- Let's use the CO2 dataset that has been collected at the top of Mauna Loa, Hawaii since 1958. The data were dowloaded from [here](https://gml.noaa.gov/ccgg/trends/). This 
+
+```{r}
+co2 <- read.csv("co2_mm_mlo.csv", skip=40)
+
+co2 <- co2 |>
+  mutate(month_year = make_date(co2$year, co2$month)) |>
+  rename(co2 = average)
+
+head(co2)
+```
+
+- Let's add a linear and a smooth
+
+```{r}
+ggplot(co2, aes(x=decimal.date, y=co2))+
+    geom_point()+
+    geom_smooth(method='lm',col="red")+
+    geom_smooth(col="blue")
+```
+- Subset the data to see seasonal trends
+
+```{r}
+co2_s<-co2[co2$year >= 2010,]
+ggplot(co2_s, aes(x=decimal.date, y=co2))+
+    geom_point()+
+    geom_smooth(method='lm',col="red")+
+    geom_smooth(col="blue")
+```
+- Look at the linear model fit of the subset data
+```{r}
+lmod<-lm(co2~decimal.date, data=co2_s)
+summary(lmod)
+
+```
+ - Use the linear model to predict CO2
+ 
+ ```{r}
+lmpredco2<-predict(lmod, co2)
+plot(lmpredco2,type='l')
+```
+
+ - Look at the gam model on the subset data and predict CO2
+
+```{r}
+gmod<-gam(co2~s(decimal.date, bs="cr", k=20), data=co2_s)
+summary(gmod)
+gampredco2<-predict(gmod, co2_s)
+plot(gampredco2,type='l')
+```
+- We see that it is still not doing much. We need to capture the within year cycles in the data, so let's add a smooth on month
+
+- That is, fit to all data and smoothing date (overall trends) and month (to get within year trends)
+
+```{r}
+
+gmod2<-gam(co2~s(decimal.date,bs="cr",k=20)+s(month,bs="cc"),data=co2)
+summary(gmod2)
+
+
+gampredco2<-predict.gam(gmod2,co2)
+plot(gampredco2,type='l')
+
+```
+

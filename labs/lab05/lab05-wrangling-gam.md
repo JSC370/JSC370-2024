@@ -210,6 +210,4 @@ need the `mgcv` package and `gam()` function to do this.
 
 - .Rmd file (this file)
 
-- Knitted .html file with all outputs.
-
-- link to the GitHub repository: \[paste here\]
+- link to the .md file (with all outputs) in your GitHub repository

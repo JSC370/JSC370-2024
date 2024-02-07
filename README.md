@@ -5,7 +5,7 @@
 ### Where and When
 * Instructor: [Meredith Franklin](https://meredithfranklin.github.io)
   * Email: <meredith.franklin@utoronto.ca>, please put "JSC370" in the subject line.
-* Teaching Assistant: Jun Ni (Jenny) Du
+* Teaching Assistant: Jun Ni (Jenny) Du <junni.du@mail.utoronto.ca>
 * Location: ESB 142
 * Time: Mondays and Wednesdays, 1-3pm
 * Office hours: By Appointment

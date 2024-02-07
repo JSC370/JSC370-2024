@@ -88,7 +88,18 @@ Once you are done setting up the project, you can now start working with the MET
 
 ## Setup in R
 
-1. Load the `data.table` (and the `dtplyr` and `dplyr` packages if you plan to work with those).
+1. Load the `data.table` (and the `dtplyr` and `dplyr` packages), `mgcv`, `ggplot2`, `leaflet`, `kableExtra`.
+
+```{r packages warnings=FALSE}
+library(data.table)
+library(dtplyr)
+library(dplyr)
+library(mgcv)
+library(ggplot2)
+library(leaflet)
+library(kableExtra)
+```
+
 
 ```{r, eval=FALSE}
 fn <- "https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/met_all_2023.gz"
@@ -110,7 +121,7 @@ stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
 stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
 
 # Selecting the three relevant columns, and keeping unique records
-stations <- unique(stations[, list(USAF, CTRY, STATE)])
+stations <- unique(stations[, list(USAF, CTRY, STATE, LAT, LON)])
 
 # Dropping NAs
 stations <- stations[!is.na(USAF)]
@@ -118,13 +129,25 @@ stations <- stations[!is.na(USAF)]
 # Removing duplicates
 stations[, n := 1:.N, by = .(USAF)]
 stations <- stations[n == 1,][, n := NULL]
+
+# Read in the met data and fix lat, lon, temp
 ```
 
-3. Merge the data as we did during the lecture.
+3. Merge the data as we did during the lecture. Use the `merge()` code and you can also try the tidy way with `left_join()`
 
-## Question 1: Representative station for the US
+```{r}
 
-Across all weather stations, what is the median station in terms of temperature, wind speed, and atmospheric pressure? Look for the three weather stations that best represent continental US using the `quantile()` function. Do these three coincide?
+```
+
+## Question 1: Identifying Representative Stations
+
+Across all weather stations, which stations have the median values of temperature, wind speed, and atmospheric pressure? Using the `quantile()` function, identify these three stations. Do they coincide?
+
+```{r}
+
+```
+
+Next identify the stations have these median values.
 
 ```{r}
 
@@ -132,19 +155,9 @@ Across all weather stations, what is the median station in terms of temperature,
 
 Knit the document, commit your changes, and save it on GitHub. Don't forget to add `README.md` to the tree, the first time you render it.
 
-## Question 2: Representative station per state
+## Question 2: Identifying Representative Stations per State
 
-Just like the previous question, you are asked to identify what is the most representative, the median, station per state. This time, instead of looking at one variable at a time, look at the euclidean distance. If multiple stations show in the median, select the one located at the lowest latitude.
-
-```{r}
-
-```
-
-Knit the doc and save it on GitHub.
-
-## Question 3: In the middle?
-
-For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
+Now let's find the weather stations by state with closest temperature and wind speed based on the euclidean distance from these medians. 
 
 ```{r}
 
@@ -152,33 +165,30 @@ For each state, identify what is the station that is closest to the mid-point of
 
 Knit the doc and save it on GitHub.
 
-## Question 4: Means of means
+## Question 3: In the Geographic Center?
 
-Using the `quantile()` function, generate a summary table that shows the number of states included, average temperature, wind-speed, and atmospheric pressure by the variable "average temperature level," which you'll need to create. 
-
-Start by computing the states' average temperature. Use that measurement to classify them according to the following criteria: 
-
-- low: temp < 20
-- Mid: temp >= 20 and temp < 25
-- High: temp >= 25
+For each state, identify which station is closest to the geographic mid-point (median) of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all ~100 points in the same figure, applying different colors for the geographic median and the temperature and wind speed median.
 
 ```{r}
 
 ```
 
-Once you are done with that, you can compute the following:
+Knit the doc and save it on GitHub.
 
-- Number of entries (records),
-- Number of NA entries,
-- Number of stations,
-- Number of states included, and
-- Mean temperature, wind-speed, and atmospheric pressure.
+## Question 4: Summary Table with `kableExtra`
 
-All by the levels described before.
+Generate a summary table using `kable` where the rows are each state and the columns represent average temperature broken down by low, median, and high elevation stations. 
+
+Use the following breakdown for elevation:
+
+- Low: elev < 93
+- Mid: elev >= 93 and elev < 401
+- High: elev >= 401
 
 ```{r}
 
 ```
+
 
 Knit the document, commit your changes, and push them to GitHub. 
 
@@ -187,7 +197,7 @@ Knit the document, commit your changes, and push them to GitHub.
 
 Let's practice running regression models with smooth functions on X. We need the `mgcv` package and `gam()` function to do this.
 
-- using your data with the median values per station, examine the association between median temperature (y) and median wind speed (x). Create a scatterplot of the two variables using ggplot2. Add both a linear regression line and a smooth line.
+- using your data with the median values per station, first create a lazy table. Filter out values of atmospheric pressure outside of the range 1000 to 1020. Examine the association between temperature (y) and atmospheric pressure (x). Create a scatterplot of the two variables using ggplot2. Add both a linear regression line and a smooth line.
 
 - fit both a linear model and a spline model (use `gam()` with a cubic regression spline on wind speed). Summarize and plot the results from the models and interpret which model is the best fit and why.
 

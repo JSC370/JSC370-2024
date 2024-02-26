@@ -25,7 +25,7 @@
 |  **Week 5** <br> February 5 [lecture](https://rpubs.com/meredithfranklin/jsc370-slides-05-wrangling) [pdf](https://jsc370.github.io/JSC370-2024/slides/JSC370-slides-05.pdf) <br> February 7 [lab]() ([sample solution]()) | Data cleaning and wrangling <br> ML 1 [advanced regression]() <br> [advanced regression solution]()| **Lab 5** |
 |  **Week 6** <br> February 12 [lecture](https://rpubs.com/meredithfranklin/jsc370-slides-06-regscrapi) [pdf](https://jsc370.github.io/JSC370-2024/slides/JSC370-slides-06.pdf) <br> February 14 [lab]() ([sample solution]()) | Regular Expressions, Data scraping, using APIs  |  **[HW2](https://rpubs.com/meredithfranklin/jsc370-homework-02), Lab 6**  |
 |  **Week 7** <br> February 21 | Reading Week  |   |
-|  **Week 8** <br> February 26 [lecture]() <br> February 28 [lab]() ([sample solution]()) | Text mining  |  **Lab 8** |
+|  **Week 8** <br> February 26 [lecture](https://rpubs.com/meredithfranklin/jsc370-slides-07-text) <br> February 28 [lab](https://jsc370.github.io/JSC370-2024/slides/JSC370-slides-07.pdf) ([sample solution]()) | Text mining  |  **Lab 8** |
 |  **Week 9** <br> March 4 [lecture](), [Guest Speaker]() <br> March 6 [lab]() ([sample solution]()) |  High performance computing, cloud computing  | **[Midterm](https://jsc370.github.io/JSC370-2024/homework/midterm.pdf), Lab 9**   |
 |  **Week 10** <br> March 11 [lecture]() <br> March 13 [lab]() ([sample solution](), [lab-b (optional)]() ([sample solution]()) |  ML 2 (trees, rf, xgboost)   | **[HW3]() Lab 10** |
 |  **Week 11** <br> March 18 [lecture]() <br> March 20 [lab11]() ([sample solution]())| <br> Interactive visualization and effective data communication I  |  **Lab 11**  |

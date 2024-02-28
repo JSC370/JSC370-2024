@@ -1,0 +1,198 @@
+---
+title: "Lab 08 - Text Mining/NLP"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(eval = F, include  = T)
+```
+
+# Learning goals
+
+- Use `unnest_tokens()` and `unnest_ngrams()` to extract tokens and ngrams from text
+- Use dplyr and ggplot2 to analyze and visualize text data
+- Try a theme model using `topicmodels`
+
+# Lab description
+
+For this lab we will be working with the medical record transcriptions from https://www.mtsamples.com/. And is loaded and "fairly" cleaned at https://github.com/JSC370/JSC370-2024/tree/main/data/medical_transcriptions.
+
+This markdown document should be rendered using `github_document` document.
+
+
+
+### Setup packages
+
+You should load in `dplyr`, (or `data.table` if you want to work that way), `ggplot2` and `tidytext`. Install `wordcloud`, `tm`, and `topicmodels` if you don't alreadyh have them.
+
+
+
+### Read in the Medical Transcriptions
+
+Loading in reference transcription samples from https://www.mtsamples.com/
+
+```{r eval=FALSE}
+library(tidytext)
+library(tidyverse)
+library(wordcloud)
+library(tm)
+library(topicmodels)
+
+mt_samples <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/medical_transcriptions/mtsamples.csv")
+mt_samples <- mt_samples %>%
+  select(description, medical_specialty, transcription)
+
+head(mt_samples)
+```
+
+---
+
+## Question 1: What specialties do we have?
+
+We can use `count()` from `dplyr` to figure out how many different medical specialties are in the data. Are these categories related? overlapping? evenly distributed? Make a bar plot.
+
+```{r eval=FALSE}
+mt_samples |>
+  count(, sort = TRUE) |>
+  ggplot()
+```
+
+---
+
+## Question 2: Tokenize
+
+- Tokenize the the words in the `transcription` column
+- Count the number of times each token appears
+- Visualize the top 20 most frequent words with a bar plot
+- Create a word cloud
+
+Explain what we see from this result. Does it makes sense? What insights (if any) do we get?
+
+```{r eval=FALSE}
+tokens <- mt_samples |>
+  select(transcription) |>
+  unnest_tokens() |>
+  ...
+
+tokens |>
+  ggplot(aes()) +
+  geom_bar()
+
+wordcloud()
+```
+
+---
+
+## Question 3: Stopwords
+
+- Redo Question 2 but remove stopwords(use stopwords package)
+- Bonus points if you remove numbers as well (use regex)
+
+What do we see know that we have removed stop words? Does it give us a better idea of what the text is about?
+
+- Try customizing your stopwords list to include 3-4 additional words that do not appear informative
+
+```{r eval=FALSE}
+head(stopwords("english"))
+length(stopwords("english"))
+
+
+tokens <- mt_samples |>
+  select(transcription) |>
+  unnest_tokens() |>
+  filter() |>
+  ...
+
+tokens |>
+  ggplot(aes()) +
+  geom_bar()
+
+wordcloud()
+
+
+```
+
+
+---
+
+
+
+# Question 4: ngrams
+
+Repeat question 2, but this time tokenize into bi-grams. How does the result change if you look at tri-grams? Note we need to remove stopwords a little differently. You don't need to recreate the wordclouds.
+
+```{r eval=FALSE}
+sw_start <- paste0("^", paste(stopwords2, collapse=" |^"), "$")
+sw_end <- paste0("", paste(stopwords2, collapse="$| "), "$")
+
+tokens_bigram <- mt_samples |>
+  select(transcription) |>
+  unnest_tokens(ngram, transcription, token = "ngrams", n = 2) |>
+  filter()|>
+  filter()|>
+  filter()|>
+  ... 
+```
+---
+
+# Question 5: Examining words
+
+Using the results from the bigram, pick a word and count the words that appear before and after it, and create a plot of the top 20.
+
+```{r eval=FALSE}
+library(stringr)
+# e.g. patient, blood, preoperative...
+tokens_bigram |>
+  filter(str_detect(#use regex for your word picking words before and after)) |>
+    mutate(word = str_remove(ngram, ""),
+         word = str_remove_all(word, " ")) |>
+      ...
+```
+
+---
+
+
+# Question 6: Words by Specialties
+
+Which words are most used in each of the specialties. you can use `group_by()` and `top_n()` from `dplyr` to have the calculations be done within each specialty. Remember to remove stopwords. How about the most 5 used words?
+
+
+```{r eval=FALSE}
+mt_samples |>
+   unnest_tokens(word, transcription) |>
+   ...
+   group_by(medical_specialty) |>
+   ...
+```
+
+
+# Question 7: Topic Models
+
+See if there are any themes in the data by using a topic model (LDA). 
+
+- you first need to create a document term matrix
+- then you can try the LDA function in `topicmodels`. Try different k values.
+- create a facet plot of the results from the LDA (see code from lecture)
+
+
+```{r eval=FALSE}
+
+transcripts_dtm <- mt_samples |>
+  select(transcription) |>
+  unnest_tokens() |>
+  filter() |>
+  filter() |>
+  DocumentTermMatrix()
+
+
+transcripts_dtm <- as.matrix(transcripts_dtm)   
+
+transcripts_lda <- LDA()
+
+```
+
+
+
+# Deliverables
+
+1. Questions 1-7 answered, pdf or html output uploaded to quercus

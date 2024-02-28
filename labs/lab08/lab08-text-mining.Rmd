@@ -195,4 +195,4 @@ transcripts_lda <- LDA()
 
 # Deliverables
 
-1. Questions 1-7 answered, pdf or html output uploaded to quercus
+1. Questions 1-7 answered, raw .Rmd file and pdf or html output uploaded to Quercus

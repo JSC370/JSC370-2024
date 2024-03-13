@@ -1,0 +1,121 @@
+---
+title: "JSC370-slides10-ml"
+output: html_document
+date: "2024-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, eval=FALSE, warning=FALSE}
+install.packages(c("rpart", "rpart.plot", "randomForest", "gbm", "xgboost"))
+```
+
+### Load packages and data
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(xgboost)
+```
+
+
+---
+
+## Question 1: Trees with simulated data
+
+- Simulate data from a random uniform distribution [-5,5] and normally distributed errors (s.d = 0.5)
+- Create a non-linear relationship y=sin(x)+error
+- Split the data into test and training sets (500 points each), plot the data
+
+```{r sim,   warning=FALSE}
+set.seed(1984)
+n<-1000
+x<-runif(n,-5,5) 
+error<-rnorm(n,sd=0.5)
+y<-sin(x)+error 
+nonlin<-data.frame(y=y, x=x)
+
+train_size<-sample(1:1000, size = 500)
+nonlin_train<-nonlin[train_size,]
+nonlin_test<-nonlin[-train_size,]
+
+ggplot(nonlin,aes(y=y,x=x))+
+  geom_point() +
+  theme_bw()
+```
+
+- Fit a regression tree using the training set, plot it
+- Determine the optimal complexity parameter (cp) to prune the tree
+- Plot the pruned tree and summarize
+
+```{r tree,   warning=FALSE}
+treefit<-rpart(y~x, method = 'anova',control = list(cp=0), data = nonlin_train) 
+#method ='anova' indicates regression tree, cp=0 ensures that binary recursive partitioning will not stop early due to lack of improvement in RSS by an amount of at least cp
+
+plot(treefit)
+text(treefit) #annotates the tree. May fail if tree is too large
+
+rpart.plot(treefit) #rpart.plot function generates better looking trees!
+# note: the height of the branches are proportional to the improvement in RSS
+
+# plot the cp relative error to determine the optimal complexity parameter
+plotcp(treefit)
+
+#print the table complexity parameter values and their associated cv-errors
+printcp(treefit)
+
+# select the optimal complexity parameter and prune the tree
+optimalcp<-0.0073
+treepruned<-prune(treefit, cp=optimalcp)
+
+# plot the pruned tree
+rpart.plot(treepruned)
+# summarize the pruned tree object and relate the summary to the plotted tree above
+summary(treepruned)
+```
+
+- Based on the plot and/or summary of the pruned tree create a vector of the (ordered) split points for variable x, and a vector of fitted values for the intervals determined by the split points of x.
+
+```{r splits,   warning=FALSE}
+# extract and sort x values at split points
+x_splits <- sort(treepruned$splits[ , "index"])
+# extract the corresponding y values by passing in the x values
+y_splits <- predict(treepruned, data.frame(x = c(-999, x_splits)))
+data.frame(x_splits_lower = c(-999, x_splits), y_fitted = y_splits)
+```
+- plot the step function corresponding to the fitted (pruned) tree
+
+```{r,   warning=FALSE}
+stpfn <- stepfun(x_splits, y_splits)
+plot(y~x, data = nonlin_train)
+plot(stpfn, add = TRUE, lwd = 2, col = 'red')
+```
+
+- Fit a linear model to the training data and plot the regression line. 
+- Contrast the quality of the fit of the tree model vs. linear regression by inspection of the plot
+- Compute the test MSE of the pruned tree and the linear regression model
+
+```{r, warning=FALSE}
+lmfit <- lm(y ~ x, data = nonlin_train)
+summary(lmfit)
+plot(y ~ x, data = nonlin_train)
+abline(lmfit, col = 'blue', lwd = 2)
+plot(stpfn, add = TRUE, lwd = 2, col='red')
+
+tree_pred<-predict(treepruned, nonlin_test)
+nonlin_test_tree<-cbind(nonlin_test, tree_pred)
+tree_mse<-sum(nonlin_test_tree$tree_pred-nonlin_test_tree$y)^2/500
+tree_mse
+
+lm_pred<-predict(lmfit, nonlin_test)
+nonlin_test_lm<-cbind(nonlin_test, lm_pred)
+lm_mse<-sum(nonlin_test_lm$lm_pred-nonlin_test_lm$y)^2/500
+lm_mse
+```
+- Is the lm or regression tree better at fitting a non-linear function?
+

@@ -1,0 +1,203 @@
+---
+title: "Lab 11 - Interactive Visualization"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(eval = FALSE, include  = FALSE)
+```
+
+# Learning Goals
+
+- Read in and process Starbucks informatio
+- Create interactive graphs of different types using `ggplotly()` and `plot_ly()` 
+- Customize the hoverinfo and other plot features
+- Create a Choropleth map using `plot_geo()`
+
+# Lab Description
+
+We will work with two Starbucks datasets, one on the store locations (global) and one for the nutritional data for their food and drink items. We will do some text analysis of the menu items.
+
+# Steps
+
+### 0. Install and load libraries
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+library(tidyverse)
+library(plotly)
+library(widgetframe)
+library(tidytext)
+
+```
+### 1. Read in the data
+
+- There are 4 datasets to read in, Starbucks locations, Starbucks nutrition, US population by state, and US state abbreviations.
+
+```{r}
+
+sb_locs <- read_csv()
+
+sb_nutr <- read_csv()
+
+usa_pop <- read_csv()
+
+usa_states<-read_csv()
+```
+
+### 2. Look at the data
+
+- Inspect each dataset to look at variable names and ensure it was imported correctly
+
+
+```{r}
+
+```
+
+### 3. Format the data
+
+- Subset Starbucks data to the US.
+- Create counts of Starbucks stores by state.
+- Merge population in with the store count by state.
+- Inspect the range values for each variable. 
+
+
+```{r}
+
+sb_usa <- sb_locs |> filter()
+
+sb_locs_state <- sb_usa |>
+  group_by() |>
+  rename() |>
+  summarize()
+
+# need state abbreviations
+usa_pop_abbr <- 
+  full_join(
+            ) 
+  
+sb_locs_state <- full_join()
+  
+
+
+```
+
+### 4. Use `ggplotly` for EDA
+
+Answer the following questions:
+
+- Are the number of Starbucks proportional to the population of a state? (scatterplot)
+
+- Is the caloric distribution of Starbucks menu items different for drinks and food? (histogram)
+
+- What are the top 20 words in Starbucks menu items? (bar plot)
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+
+p3<- sb_nutr |>
+  unnest_tokens() |>
+  count() |>
+  head() |>
+  ggplot()+
+  geom_col()+
+  coord_flip()
+
+ggplotly(p3)
+```
+
+
+
+### 5. Scatterplots using `plot_ly()`
+
+- Create a scatterplot using `plot_ly()` representing the relationship between calories and carbs
+- Color points by category
+
+```{r}
+
+```
+
+
+
+
+- Create this scatterplot but for the items consisting of the top 10 words
+- Color again by category
+- Add hoverinfo specifying the word in the item name
+- Add layout information to title the chart and the axes
+- Enable `hovermode = "compare"`
+  
+```{r}
+
+  
+```
+
+ 
+
+
+
+### 6. `plot_ly` Boxplots
+
+- Create a boxplot of all of the nutritional variables in groups by the 10 item words.
+
+```{r}
+
+
+```
+
+### 7. 3D Scatterplot
+
+- Create a 3D scatterplot between Calories, Carbs, and Protein for the items containing the top 10 words
+- Do you see any patterns?
+
+```{r}
+
+
+```
+
+
+### 8. `plot_ly` Map
+
+- Create a map to visualize the number of stores per state, and another for the population by state. Use subplot to put the maps side by side.
+- Describe the differences if any.
+
+```{r}
+# Set up mapping details
+set_map_details <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('steelblue')
+)
+
+# Make sure both maps are on the same color scale
+shadeLimit <- 125
+
+# Create hover text
+sb_locs_state$hover <- with(sb_locs_state, paste("Number of Starbucks: ", n_stores, '<br>', "State: ", state.y, '<br>', "Population: ", population))
+
+# Create the map
+map1 <- plot_geo()
+map1
+
+
+map2 <- plot_geo()
+map2
+
+subplot(map1, map2)
+```
+

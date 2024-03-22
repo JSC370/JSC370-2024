@@ -31,7 +31,7 @@
 |  **Week 11** <br> March 18 [lecture](https://rpubs.com/meredithfranklin/jsc370-interactive-viz1) <br> March 20 [lab11]() ([sample solution]())| <br> Interactive visualization and effective data communication I  |  **[HW3](https://github.com/JSC370/JSC370-2024/blob/main/homework/hw3_2024.pdf), Lab 11**  |
 |  **Week 12** <br> March 25 [lecture]() <br> March 27 [lab12]() | Interactive visualization and effective data communication II  | **Lab 12**  |
 |  **Week 13** <br> April 1 lecture <br> April 3 |  Final Project Workshop |  **[HW4](https://rpubs.com/meredithfranklin/jsc370-hw4)** |
-|  **Week 15** <br> April 30| |  **[Final Project](https://github.com/JSC370/JSC370-2024/blob/main/homework/final.pdf)** |
+|  **Week 15** <br> April 30| |  **[Final Project](https://github.com/JSC370/JSC370-2024/blob/main/homework/final.pdf), [HW5](https://github.com/JSC370/JSC370-2024/blob/main/homework/hw5-2024.pdf)** |
 
 ### Grading Breakdown
 

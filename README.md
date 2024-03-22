@@ -29,9 +29,9 @@
 |  **Week 9** <br> March 4 [lecture](https://rpubs.com/meredithfranklin/jsc370-slides-09-hpc) <br> March 6 [lab](https://github.com/JSC370/JSC370-2024/tree/main/labs/lab09) ([sample solution]()) |  High performance computing, cloud computing  | **[Midterm](https://jsc370.github.io/JSC370-2024/homework/midterm.pdf), Lab 9**   |
 |  **Week 10** <br> March 11 [lecture](https://github.com/JSC370/JSC370-2024/blob/main/slides/JSC370-slides-10.pdf) <br> March 13 [lab]() ([sample solution](), [lab-b (optional)]() ([sample solution]()) |  ML 2 (trees, rf, xgboost)   | **Lab 10** |
 |  **Week 11** <br> March 18 [lecture](https://rpubs.com/meredithfranklin/jsc370-interactive-viz1) <br> March 20 [lab11]() ([sample solution]())| <br> Interactive visualization and effective data communication I  |  **[HW3](https://github.com/JSC370/JSC370-2024/blob/main/homework/hw3_2024.pdf), Lab 11**  |
-|  **Week 12** <br> March 25 [lecture]() <br> March 27 [lab12]() | Interactive visualization and effective data communication II  | **[HW4](), Lab 12**  |
-|  **Week 13** <br> April 1 lecture <br> April 3 (lab) |  Final Porject Workshop |  **[HW5]()** |
-|  **Week 15** <br> April 26 (final exam period) | |  **[Final Project]()** |
+|  **Week 12** <br> March 25 [lecture]() <br> March 27 [lab12]() | Interactive visualization and effective data communication II  | **Lab 12**  |
+|  **Week 13** <br> April 1 lecture <br> April 3 |  Final Project Workshop |  **[HW4](https://rpubs.com/meredithfranklin/jsc370-hw4)** |
+|  **Week 15** <br> April 30| |  **[Final Project](https://github.com/JSC370/JSC370-2024/blob/main/homework/final.pdf)** |
 
 ### Grading Breakdown
 

@@ -5,13 +5,11 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "Lab 12"
-      href: 12-lab.html
   right:
     - icon: fa-github fa-lg
-      href: https://github.com/JSC370/jsc370-2023/
+      href: https://github.com/JSC370/JSC370-2024/
     - text: "JSC370 Home"
-      href: https://jsc370.github.io/jsc370-2023/
+      href: https://jsc370.github.io/JSC370-2024/
 output:
   html_document:
     theme: cosmo

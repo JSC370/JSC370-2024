@@ -342,7 +342,7 @@ Then you can add some code chunks to create the interactive visuals you want to 
 
 <br>
 
-Now, please create 2 figures of your own, either using the code from last week's lab, or creating new figures based on the data created by the `process_COVID_data.R` code.
+Now, please create 2 figures of your own, either using the code from last week's lab, or creating new figures based on the data created by the `process_starbucks_data.R` code.
 
 ## Step 13: Display figures in tabs {.tabset}
 

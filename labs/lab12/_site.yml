@@ -1,0 +1,20 @@
+name: "my-website"
+output_dir: "."
+navbar:
+  title: "JSC370 Final Project"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Lab 12"
+      href: 12-lab.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/JSC370/jsc370-2023/
+    - text: "JSC370 Home"
+      href: https://jsc370.github.io/jsc370-2023/
+output:
+  html_document:
+    theme: cosmo
+    include:
+      after_body: footer.html
+    css: styles.css
